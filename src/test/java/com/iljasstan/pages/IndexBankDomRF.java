@@ -8,10 +8,11 @@ import com.iljasstan.Enums.Requisits;
 import static com.codeborne.selenide.Selenide.*;
 
 public class IndexBankDomRF {
-    private final String indexURL = "https://domrfbank.ru",
+     public final String indexURL = "https://domrfbank.ru",
             appstoreTitle = "App Store: Банк Дом.РФ",
             googlePlayTitle = "Приложения в Google Play – Банк Дом.РФ",
-            alternateGooglePlayTitle = "Банк Дом.РФ - Apps on Google Play";
+            alternateGooglePlayTitle = "Банк Дом.РФ - Apps on Google Play",
+            sqlRequest = "Select *";
 
     private final SelenideElement
             appStoreIcon = $("[alt = 'ios']"),
@@ -63,11 +64,8 @@ public class IndexBankDomRF {
         requisitesButton.click();
     }
 
-    public void checkFieldsInRequisitesTable() {
-        requisitesTable.shouldHave(Condition.text(Requisits.LEGALADDRESS.getDesc()));
-        requisitesTable.shouldHave(Condition.text(Requisits.POSTALADDRESS.getDesc()));
-        requisitesTable.shouldHave(Condition.text(Requisits.INN.getDesc()));
-        requisitesTable.shouldHave(Condition.text(Requisits.KPP.getDesc()));
+    public void checkFieldsInRequisitesTable(Requisits requisite) {
+        requisitesTable.shouldHave(Condition.text(requisite.getDesc()));
     }
 
     public void pressDepositsButton () {
@@ -78,14 +76,8 @@ public class IndexBankDomRF {
         depositsAndOthersButton.click();
     }
 
-    public void checkTheListOfDeposits() {
-        depositsContainer.shouldHave(Condition.text(Deposits.DEPOSIT0.getDesc()));
-        depositsContainer.shouldHave(Condition.text(Deposits.DEPOSIT1.getDesc()));
-        depositsContainer.shouldHave(Condition.text(Deposits.DEPOSIT2.getDesc()));
-        depositsContainer.shouldHave(Condition.text(Deposits.DEPOSIT3.getDesc()));
-        depositsContainer.shouldHave(Condition.text(Deposits.DEPOSIT4.getDesc()));
-        depositsContainer.shouldHave(Condition.text(Deposits.DEPOSIT5.getDesc()));
-        depositsContainer.shouldHave(Condition.text(Deposits.DEPOSIT6.getDesc()));
+    public void checkTheListOfDeposits(Deposits deposit) {
+        depositsContainer.shouldHave(Condition.text(deposit.getDesc()));
     }
 
     public void pressEnterButton() {
@@ -98,8 +90,8 @@ public class IndexBankDomRF {
     }
 
     public void fillLoginFieldsSQL() {
-        userNameField.setValue("Select *");
-        passwordField.setValue("Select *").click();
+        userNameField.setValue(sqlRequest);
+        passwordField.setValue(sqlRequest).click();
     }
 
     public void pressEnterAtLoginPage() {
