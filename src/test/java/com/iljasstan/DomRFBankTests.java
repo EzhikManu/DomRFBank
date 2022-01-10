@@ -5,6 +5,9 @@ import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.logevents.SelenideLogger;
 import com.iljasstan.Enums.Deposits;
 import com.iljasstan.Enums.Requisits;
+import config.Browser;
+import config.BrowserConfig;
+import config.CredentialsConfig;
 import io.qameta.allure.AllureId;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Owner;
@@ -22,11 +25,8 @@ public class DomRFBankTests {
     private final String indexURL = "https://domrfbank.ru",
             appstoreTitle = "App Store: Банк Дом.РФ",
             googlePlayTitle = "Приложения в Google Play – Банк Дом.РФ";
-    static String browser;
-    @BeforeAll
-    static void beforeAll() {
-        Configuration.browser = browser;
-    }
+
+
     CredentialsConfig credentials = ConfigFactory.create(CredentialsConfig.class);
     String login = credentials.login();
     String password = credentials.password();
@@ -39,6 +39,7 @@ public class DomRFBankTests {
         capabilities.setCapability("enableVideo", true);
 
         Configuration.browserCapabilities = capabilities;
+        Configuration.browser = capabilities.getBrowserName();
         Configuration.remote = String.format("https://%s:%s@selenoid.autotests.cloud/wd/hub/", login, password);
     }
 
