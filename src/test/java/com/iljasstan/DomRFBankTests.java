@@ -177,6 +177,7 @@ public class DomRFBankTests {
     @AfterEach
     void afterEach() {
         Attach.screenshotAs("Last screenshot");
+        Attach.pageSource();
         Attach.browserConsoleLogs();
         Attach.addVideo();
         closeWebDriver();
