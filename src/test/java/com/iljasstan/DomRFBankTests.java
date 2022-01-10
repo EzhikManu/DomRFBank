@@ -8,6 +8,7 @@ import com.iljasstan.Enums.Requisits;
 import config.Browser;
 import config.BrowserConfig;
 import config.CredentialsConfig;
+import helpers.Attach;
 import io.qameta.allure.AllureId;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Owner;
@@ -39,7 +40,7 @@ public class DomRFBankTests {
         capabilities.setCapability("enableVideo", true);
 
         Configuration.browserCapabilities = capabilities;
-        Configuration.browser = capabilities.getBrowserName();
+//        Configuration.browser = capabilities.getBrowserName();
         Configuration.remote = String.format("https://%s:%s@selenoid.autotests.cloud/wd/hub/", login, password);
     }
 
@@ -57,7 +58,6 @@ public class DomRFBankTests {
             switchTo().window(1);
         });
         step("Проверить, что открылась страница " + appstoreTitle, () -> {
-            //$("link [href='appstoreUrl'").exists();
             $("title").shouldHave(Condition.exactOwnText(appstoreTitle));
         });
     }
@@ -176,6 +176,9 @@ public class DomRFBankTests {
     }
     @AfterEach
     void afterEach() {
+        Attach.screenshotAs("Last screenshot");
+        Attach.browserConsoleLogs();
+        Attach.addVideo();
         closeWebDriver();
     }
 }
