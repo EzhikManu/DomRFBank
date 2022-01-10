@@ -5,6 +5,7 @@ import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.logevents.SelenideLogger;
 import com.iljasstan.Enums.Deposits;
 import com.iljasstan.Enums.Requisits;
+import com.iljasstan.pages.IndexBankDomRF;
 import config.Browser;
 import config.BrowserConfig;
 import config.CredentialsConfig;
@@ -23,9 +24,11 @@ import static com.codeborne.selenide.Selenide.*;
 import static io.qameta.allure.Allure.step;
 
 public class DomRFBankTests {
+    IndexBankDomRF page = new IndexBankDomRF();
     private final String indexURL = "https://domrfbank.ru",
             appstoreTitle = "App Store: Банк Дом.РФ",
-            googlePlayTitle = "Приложения в Google Play – Банк Дом.РФ";
+            googlePlayTitle = "Приложения в Google Play – Банк Дом.РФ",
+            alternateGooglePlayTitle = "Банк Дом.РФ - Apps on Google Play";
 
 
     CredentialsConfig credentials = ConfigFactory.create(CredentialsConfig.class);
@@ -41,7 +44,7 @@ public class DomRFBankTests {
 
         Configuration.browserCapabilities = capabilities;
 //        Configuration.browser = capabilities.getBrowserName();
-        Configuration.remote = String.format("https://%s:%s@selenoid.autotests.cloud/wd/hub/", login, password);
+//        Configuration.remote = String.format("https://%s:%s@selenoid.autotests.cloud/wd/hub/", login, password);
     }
 
     @Test
@@ -49,16 +52,15 @@ public class DomRFBankTests {
     @DisplayName("Ссылка с главной страницы банка должна вести на страницу приложения банка в App Store")
     @Tag("critical")
     @Feature("Открыть страницу приложения банка в App Store")
-    public void openAppStore() {
+    void openAppStore() {
         step("Открыть главную страницу " + indexURL, () -> {
-            open(indexURL);
+            page.openIndexURL();
         });
         step("Нажать на иконку App Store внизу страницы", () -> {
-            $("[alt = 'ios']").click();
-            switchTo().window(1);
+            page.pressAppsStoreButton();
         });
         step("Проверить, что открылась страница " + appstoreTitle, () -> {
-            $("title").shouldHave(Condition.exactOwnText(appstoreTitle));
+            page.checkAppStoreTitle();
         });
     }
     @Test
@@ -68,55 +70,52 @@ public class DomRFBankTests {
     @Feature("Открыть страницу приложения банка в Google Play")
     public void openGooglePlay() {
         step("Открыть главную страницу " + indexURL, () -> {
-            open(indexURL);
+            page.openIndexURL();
         });
         step("Нажать на иконку Google Play внизу страницы", () -> {
-            $("[alt = 'android']").click();
-            switchTo().window(1);
+            page.pressGooglePlayButton();
         });
         step("Проверить, что открылась страница " + googlePlayTitle, () -> {
-            $("#main-title").shouldHave(Condition.exactOwnText(googlePlayTitle));
+            page.checkGogglePlayTitle();
         });
     }
-    @EnumSource(value = Requisits.class)
-    @ParameterizedTest(name = "Реквизиты банка должны отображаться на соответствующей странице")
+    @Test
     @AllureId("6574")
     @DisplayName("Реквизиты банка должны отображаться на соответствующей странице")
     @Tag("major")
     @Feature("Просмотр реквизитов банка")
-    public void checkRequisites(Requisits requisit) {
+    public void checkRequisites() {
         step("Открыть главную страницу " + indexURL, () -> {
-            open(indexURL);
+            page.openIndexURL();
         });
         step("Нажать кнопку О банке в шапке страницы", () -> {
-            $("a[href=\"/about/\"]").click();
+            page.pressAboutBankButton();
         });
         step("Нажать на кнопку Реквизиты", () -> {
-            $("a[href=\"/about/requisites/\"]").click();
+            page.pressRequisitesButton();
         });
         step("Проверить, что на открывшейся странице есть поля Юридический адрес, Почтовый адрес, ИНН, КПП", () -> {
-            $(".requisites-info__container").shouldHave(Condition.text(requisit.getDesc()));
+            page.checkFieldsInRequisitesTable();
         });
     }
-    @EnumSource(value = Deposits.class)
-    @ParameterizedTest(name = "На странице вкладов и счетов должен появится полный список вкладов и счетов")
+    @Test
     @AllureId("6573")
     @DisplayName("На странице вкладов и счетов должен появится полный список вкладов и счетов")
     @Tag("major")
     @Feature("Просмотр списка вкладов и счетов")
-    public void checkTheListOfDeposits(Deposits deposit) {
+    public void checkTheListOfDeposits() {
         step("Открыть главную страницу " + indexURL, () -> {
-            open(indexURL);
+            page.openIndexURL();
         });
         step("Кликнуть на кнопку Вклады в шапке страницы", () -> {
-            $("a[href=\"/deposits/\"]").click();
+            page.pressDepositsButton();
         });
         step("Кликнуть на кнопку Вклады и счета", () -> {
-            $("a[href=\"/deposits/others/\"]").click();
+            page.pressDepositsAndOthersButton();
         });
         step("Проверить, что на странице показаны вклады с названиями Надёжный, Стратегический, Дома Лучше, " +
                 "Доступный, Накопительный счёт, Доходный+, До востребования", () -> {
-            $(".faq-cards").shouldHave(Condition.text(deposit.getDesc()));
+            page.checkTheListOfDeposits();
         });
     }
     @Test
@@ -127,24 +126,22 @@ public class DomRFBankTests {
     @Feature("Сообщение об ошибке при входе в интернет-банк с неверными логином и паролем")
     public void checkTheErrorMessageAfterFillingSQLCommandsToLoginForm() {
         step("Открыть главную страницу " + indexURL, () -> {
-            open(indexURL);
+            page.openIndexURL();
         });
         step("Нажать на кнопку Войти", () -> {
-            $(".header-actions-dropdown__toggle").click();
+            page.pressEnterButton();
             step("В открывшемся списке выбрать Интернет-банк", () -> {
-                $("a[href=\"https://my.domrfbank.ru/#/\"]").click();
-                switchTo().window(1);
+                page.pressInternetBankButton();
             });
         });
         step("Ввести в поле логин select *, в поле пароль select *", () -> {
-            $("[name=\"username\"]").setValue("Select *");
-            $("[name=\"password\"]").setValue("Select *").click();
+            page.fillLoginFieldsSQL();
         });
         step("нажать Enter", () -> {
-            $("[name=\"password\"]").pressEnter();
+            page.pressEnterAtLoginPage();
         });
         step("Проверить, что отобразилось сообщение об ошибке", () -> {
-            $(".bss-popup__inner").shouldBe(Condition.visible);
+            page.checkTheErrorMessageIsVisible();
         });
     }
     @Test
@@ -154,24 +151,22 @@ public class DomRFBankTests {
     @Feature("Сообщение об ошибке при входе в интернет-банк с неверными логином и паролем")
     public void checkTheErrorMessageAfterFillingInvalidDataToLoginForm() {
         step("Открыть главную страницу " + indexURL, () -> {
-            open(indexURL);
+            page.openIndexURL();
         });
         step("Нажать на кнопку Войти", () -> {
-            $(".header-actions-dropdown__toggle").click();
+            page.pressEnterButton();
             step("В открывшемся списке выбрать Интернет-банк", () -> {
-                $("a[href=\"https://my.domrfbank.ru/#/\"]").click();
-                switchTo().window(1);
+                page.pressInternetBankButton();
             });
         });
         step("Ввести в поле логин ivalid login, в поле пароль invalid password", () -> {
-            $("[name=\"username\"]").setValue("ivalid login");
-            $("[name=\"password\"]").setValue("invalid password");
+            page.fillLoginFieldsInvalidData();
         });
         step("Нажать кнопку Войти в банк", () -> {
-            $(".bss-button").click();
+            page.pressEnterToInternetBank();
         });
         step("Проверить, что отобразилось сообщение об ошибке", () -> {
-            $(".bss-popup__inner").shouldBe(Condition.visible);
+            page.checkTheErrorMessageIsVisible();
         });
     }
     @AfterEach
